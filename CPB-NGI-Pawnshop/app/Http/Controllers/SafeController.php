@@ -64,6 +64,10 @@ class SafeController extends Controller
      */
     public function edit(Safe $safe)
     {
+        if ($safe->items()->count() > 0) {
+            return redirect()->route('safes.index')->with('error', 'Cannot edit safe with items. Please move items first.');
+        }
+
         $customers = Customer::where('is_active', true)->get();
         $locations = config('safes.locations');
         return view('safes.edit', compact('safe', 'customers', 'locations'));
@@ -74,6 +78,10 @@ class SafeController extends Controller
      */
     public function update(Request $request, Safe $safe)
     {
+        if ($safe->items()->count() > 0) {
+            return redirect()->route('safes.index')->with('error', 'Cannot edit safe with items. Please move items first.');
+        }
+
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'is_personal' => 'nullable|boolean',

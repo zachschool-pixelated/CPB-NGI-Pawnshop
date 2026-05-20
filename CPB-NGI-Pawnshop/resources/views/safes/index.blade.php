@@ -64,16 +64,25 @@
                                     <a href="{{ route('safes.show', $safe) }}" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-3 rounded text-center text-sm dark:bg-blue-600 dark:hover:bg-blue-700 transition">
                                         View
                                     </a>
-                                    <a href="{{ route('safes.edit', $safe) }}" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-center text-sm dark:bg-yellow-600 dark:hover:bg-yellow-700 transition">
-                                        Edit
-                                    </a>
-                                    <form action="{{ route('safes.destroy', $safe) }}" method="POST" class="flex-1" onsubmit="return confirm('Are you sure?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm dark:bg-red-600 dark:hover:bg-red-700 transition">
+                                    @if ($safe->items_count > 0)
+                                        <button type="button" disabled class="flex-1 bg-gray-300 dark:bg-gray-750 text-gray-500 dark:text-gray-400 font-semibold py-2 px-3 rounded text-sm cursor-not-allowed" title="Cannot edit safe with items">
+                                            Edit
+                                        </button>
+                                        <button type="button" disabled class="flex-1 bg-gray-300 dark:bg-gray-750 text-gray-500 dark:text-gray-400 font-semibold py-2 px-3 rounded text-sm cursor-not-allowed" title="Cannot delete safe with items">
                                             Delete
                                         </button>
-                                    </form>
+                                    @else
+                                        <a href="{{ route('safes.edit', $safe) }}" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded text-center text-sm dark:bg-yellow-600 dark:hover:bg-yellow-700 transition">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('safes.destroy', $safe) }}" method="POST" class="flex-1" onsubmit="return confirm('Are you sure?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded text-sm dark:bg-red-600 dark:hover:bg-red-700 transition">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>

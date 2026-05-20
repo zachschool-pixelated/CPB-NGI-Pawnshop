@@ -53,6 +53,10 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
+        if ($category->items()->count() > 0) {
+            return redirect()->route('categories.index')->with('error', 'Cannot edit category containing items. Please move items first.');
+        }
+
         return view('categories.edit', compact('category'));
     }
 
@@ -61,6 +65,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
+        if ($category->items()->count() > 0) {
+            return redirect()->route('categories.index')->with('error', 'Cannot update category containing items.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
@@ -73,11 +81,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $hasTransactions = $category->items()->whereHas('transactions')->exists() || 
-                           $category->items()->whereHas('saleItem')->exists();
-
-        if ($hasTransactions) {
-            return redirect()->route('categories.index')->with('error', 'Cannot delete category because it contains items with existing transactions.');
+        if ($category->items()->count() > 0) {
+            return redirect()->route('categories.index')->with('error', 'Cannot delete category containing items. Please move or reclassify items first.');
         }
 
         $category->delete();

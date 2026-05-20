@@ -5,9 +5,15 @@
                 {{ $safe->name }} ({{ $safe->safe_code }})
             </h2>
             <div class="flex gap-2">
-                <a href="{{ route('safes.edit', $safe) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded dark:bg-yellow-600 dark:hover:bg-yellow-800">
-                    Edit
-                </a>
+                @if ($safe->items->count() > 0)
+                    <button type="button" disabled class="bg-gray-300 dark:bg-gray-750 text-gray-500 dark:text-gray-400 font-bold py-2 px-4 rounded cursor-not-allowed" title="Cannot edit safe with items">
+                        Edit
+                    </button>
+                @else
+                    <a href="{{ route('safes.edit', $safe) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded dark:bg-yellow-600 dark:hover:bg-yellow-800">
+                        Edit
+                    </a>
+                @endif
                 <a href="{{ route('safes.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded dark:bg-gray-600 dark:hover:bg-gray-800">
                     Back
                 </a>

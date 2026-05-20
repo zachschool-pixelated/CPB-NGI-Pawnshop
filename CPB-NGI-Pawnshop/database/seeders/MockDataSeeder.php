@@ -31,8 +31,10 @@ class MockDataSeeder extends Seeder
             ['name' => 'Teller', 'role' => 'teller', 'password' => Hash::make('password')]
         );
 
-        // 2. Create Categories
-        $jewelry = Category::firstOrCreate(['name' => 'Jewelry']);
+        // 2. Get/Create Categories
+        $goldJewelry = Category::firstOrCreate(['name' => 'Gold Jewelry']);
+        $silverJewelry = Category::firstOrCreate(['name' => 'Silver Jewelry']);
+        $watches = Category::firstOrCreate(['name' => 'Watches']);
         $electronics = Category::firstOrCreate(['name' => 'Electronics']);
 
         // 3. Create Safes
@@ -97,10 +99,23 @@ class MockDataSeeder extends Seeder
                 $isJewelry = rand(1, 2) == 1;
                 $itemName = $isJewelry ? $jewelryNames[array_rand($jewelryNames)] : $electronicsNames[array_rand($electronicsNames)];
                 
+                // Determine category
+                if ($isJewelry) {
+                    if (str_contains(strtolower($itemName), 'watch')) {
+                        $catId = $watches->id;
+                    } elseif (str_contains(strtolower($itemName), 'gold') || str_contains(strtolower($itemName), 'diamond')) {
+                        $catId = $goldJewelry->id;
+                    } else {
+                        $catId = $silverJewelry->id;
+                    }
+                } else {
+                    $catId = $electronics->id;
+                }
+
                 $item = Item::create([
                     'item_code' => uniqid('ITM-') . '-' . rand(1000, 9999),
                     'name' => $itemName,
-                    'category_id' => $isJewelry ? $jewelry->id : $electronics->id,
+                    'category_id' => $catId,
                     'safe_id' => rand(1, 2) == 1 ? $safe1->id : $safe2->id,
                     'appraised_value' => rand(5000, 25000),
                     'item_status' => 'stored',
@@ -171,10 +186,19 @@ class MockDataSeeder extends Seeder
             $txnDate = $matDate->copy()->subDays(30);
 
             $itemName = $jewelryNames[array_rand($jewelryNames)] . ' (Maturing)';
+            
+            if (str_contains(strtolower($itemName), 'watch')) {
+                $catId = $watches->id;
+            } elseif (str_contains(strtolower($itemName), 'gold') || str_contains(strtolower($itemName), 'diamond')) {
+                $catId = $goldJewelry->id;
+            } else {
+                $catId = $silverJewelry->id;
+            }
+
             $item = Item::create([
                 'item_code' => 'ITM-MAT-' . rand(1000, 9999),
                 'name' => $itemName,
-                'category_id' => $jewelry->id,
+                'category_id' => $catId,
                 'safe_id' => $safe1->id,
                 'appraised_value' => 15000,
                 'item_status' => 'stored',

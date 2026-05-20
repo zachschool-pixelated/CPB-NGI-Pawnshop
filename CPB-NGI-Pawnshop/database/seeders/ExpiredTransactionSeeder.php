@@ -26,10 +26,13 @@ class ExpiredTransactionSeeder extends Seeder
             'address' => '123 Fake St.',
         ]);
 
-        $category = \App\Models\Category::first() ?? \App\Models\Category::create([
-            'name' => 'Jewelry',
-            'description' => 'Gold and silver',
-        ]);
+        $category = \App\Models\Category::where('name', 'Gold Jewelry')->first()
+            ?? \App\Models\Category::where('name', 'Jewelry')->first()
+            ?? \App\Models\Category::first()
+            ?? \App\Models\Category::create([
+                'name' => 'Gold Jewelry',
+                'description' => 'Gold rings, necklaces, bracelets, earrings',
+            ]);
 
         $itemsData = [
             ['name' => 'Silver Ring', 'value' => 1500.00, 'loan' => 1000.00],

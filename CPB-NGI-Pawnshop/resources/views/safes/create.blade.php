@@ -41,14 +41,6 @@
                             </select>
                             <x-input-error :messages="$errors->get('location')" class="mt-2" />
                         </div>
-
-                        <!-- Description -->
-                        <div>
-                            <x-input-label for="description" :value="__('Description (Optional)')" />
-                            <textarea id="description" name="description" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300" rows="4">{{ old('description') }}</textarea>
-                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
-                        </div>
-
                         <!-- Items Capacity -->
                         <div>
                             <x-input-label for="items_capacity" :value="__('Items Capacity (Maximum number of items)')" />
@@ -63,16 +55,6 @@
                             <x-text-input id="capacity" class="block mt-1 w-full" type="number" step="0.01" name="capacity" :value="old('capacity', config('safes.default_capacity'))" required />
                             <x-input-error :messages="$errors->get('capacity')" class="mt-2" />
                         </div>
-
-
-
-                        <!-- Notes -->
-                        <div>
-                            <x-input-label for="notes" :value="__('Notes (Optional)')" />
-                            <textarea id="notes" name="notes" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300" rows="4">{{ old('notes') }}</textarea>
-                            <x-input-error :messages="$errors->get('notes')" class="mt-2" />
-                        </div>
-
                         <div class="flex gap-4">
                             <x-primary-button>{{ __('Create Safe') }}</x-primary-button>
                             <a href="{{ route('safes.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">

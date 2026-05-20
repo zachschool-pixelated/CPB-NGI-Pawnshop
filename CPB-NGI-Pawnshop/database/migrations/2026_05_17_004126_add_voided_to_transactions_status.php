@@ -12,7 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN status ENUM('active', 'renewed', 'redeemed', 'forfeited', 'voided', 'sold') DEFAULT 'active'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE transactions MODIFY COLUMN status ENUM('active', 'renewed', 'redeemed', 'forfeited', 'voided', 'sold') DEFAULT 'active'");
+        }
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN status ENUM('active', 'renewed', 'redeemed', 'forfeited') DEFAULT 'active'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE transactions MODIFY COLUMN status ENUM('active', 'renewed', 'redeemed', 'forfeited') DEFAULT 'active'");
+        }
     }
 };
