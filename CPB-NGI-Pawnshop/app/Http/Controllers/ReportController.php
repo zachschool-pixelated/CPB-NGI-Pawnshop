@@ -102,14 +102,17 @@ class ReportController extends Controller
      */
     public function transactionsReport(Request $request)
     {
-        $query = Transaction::with('customer', 'items.item');
+        $startDate = $request->filled('start_date') 
+            ? Carbon::parse($request->start_date)->startOfDay() 
+            : Carbon::now()->startOfMonth();
+            
+        $endDate = $request->filled('end_date') 
+            ? Carbon::parse($request->end_date)->endOfDay() 
+            : Carbon::now()->endOfDay();
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('transaction_date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('transaction_date', '<=', $request->end_date);
-        }
+        $query = Transaction::with('customer', 'items.item')
+            ->whereBetween('transaction_date', [$startDate, $endDate]);
+
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -117,7 +120,7 @@ class ReportController extends Controller
         $transactions = $query->latest('transaction_date')->get();
         $totalLoanReleased = $transactions->sum('loan_amount');
         
-        return view('reports.transactions', compact('transactions', 'totalLoanReleased'));
+        return view('reports.transactions', compact('transactions', 'totalLoanReleased', 'startDate', 'endDate'));
     }
 
     /**
@@ -125,14 +128,17 @@ class ReportController extends Controller
      */
     public function paymentsReport(Request $request)
     {
-        $query = Payment::with('transaction.customer');
+        $startDate = $request->filled('start_date') 
+            ? Carbon::parse($request->start_date)->startOfDay() 
+            : Carbon::now()->startOfMonth();
+            
+        $endDate = $request->filled('end_date') 
+            ? Carbon::parse($request->end_date)->endOfDay() 
+            : Carbon::now()->endOfDay();
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('payment_date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('payment_date', '<=', $request->end_date);
-        }
+        $query = Payment::with('transaction.customer')
+            ->whereBetween('payment_date', [$startDate, $endDate]);
+
         if ($request->filled('payment_type')) {
             $query->where('payment_type', $request->payment_type);
         }
@@ -140,7 +146,7 @@ class ReportController extends Controller
         $payments = $query->latest('payment_date')->get();
         $totalCollected = $payments->sum('amount_paid');
 
-        return view('reports.payments', compact('payments', 'totalCollected'));
+        return view('reports.payments', compact('payments', 'totalCollected', 'startDate', 'endDate'));
     }
 
     /**
@@ -148,19 +154,21 @@ class ReportController extends Controller
      */
     public function salesReport(Request $request)
     {
-        $query = Sale::with('saleItems.item', 'user');
+        $startDate = $request->filled('start_date') 
+            ? Carbon::parse($request->start_date)->startOfDay() 
+            : Carbon::now()->startOfMonth();
+            
+        $endDate = $request->filled('end_date') 
+            ? Carbon::parse($request->end_date)->endOfDay() 
+            : Carbon::now()->endOfDay();
 
-        if ($request->filled('start_date')) {
-            $query->whereDate('sold_at', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('sold_at', '<=', $request->end_date);
-        }
+        $query = Sale::with('saleItems.item', 'user')
+            ->whereBetween('sold_at', [$startDate, $endDate]);
 
         $sales = $query->latest('sold_at')->get();
         $totalSales = $sales->sum('total');
 
-        return view('reports.sales', compact('sales', 'totalSales'));
+        return view('reports.sales', compact('sales', 'totalSales', 'startDate', 'endDate'));
     }
 
     /**
@@ -227,59 +235,68 @@ class ReportController extends Controller
         $viewName = '';
         $fileName = '';
 
+        $startDate = $request->filled('start_date') 
+            ? Carbon::parse($request->start_date)->startOfDay() 
+            : Carbon::now()->startOfMonth();
+            
+        $endDate = $request->filled('end_date') 
+            ? Carbon::parse($request->end_date)->endOfDay() 
+            : Carbon::now()->endOfDay();
+
         if ($type === 'transactions') {
-            $query = Transaction::with('customer', 'items.item');
-            if ($request->filled('start_date')) $query->whereDate('transaction_date', '>=', $request->start_date);
-            if ($request->filled('end_date')) $query->whereDate('transaction_date', '<=', $request->end_date);
-            if ($request->filled('status')) $query->where('status', $request->status);
+            $query = Transaction::with('customer', 'items.item')
+                ->whereBetween('transaction_date', [$startDate, $endDate]);
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
             
             $transactions = $query->latest('transaction_date')->get();
             $data = [
                 'title' => 'Pawn Transactions Report',
                 'transactions' => $transactions,
-                'totalLoanReleased' => $transactions->sum('loan_amount')
+                'totalLoanReleased' => $transactions->sum('loan_amount'),
+                'startDate' => $startDate,
+                'endDate' => $endDate
             ];
             $viewName = 'reports.pdf.transactions';
             $fileName = 'transactions_report_' . now()->format('YmdHis') . '.pdf';
         }
         elseif ($type === 'payments') {
-            $query = Payment::with('transaction.customer');
-            if ($request->filled('start_date')) $query->whereDate('payment_date', '>=', $request->start_date);
-            if ($request->filled('end_date')) $query->whereDate('payment_date', '<=', $request->end_date);
-            if ($request->filled('payment_type')) $query->where('payment_type', $request->payment_type);
+            $query = Payment::with('transaction.customer')
+                ->whereBetween('payment_date', [$startDate, $endDate]);
+
+            if ($request->filled('payment_type')) {
+                $query->where('payment_type', $request->payment_type);
+            }
             
             $payments = $query->latest('payment_date')->get();
             $data = [
                 'title' => 'Payments Report',
                 'payments' => $payments,
-                'totalCollected' => $payments->sum('amount_paid')
+                'totalCollected' => $payments->sum('amount_paid'),
+                'startDate' => $startDate,
+                'endDate' => $endDate
             ];
             $viewName = 'reports.pdf.payments';
             $fileName = 'payments_report_' . now()->format('YmdHis') . '.pdf';
         }
         elseif ($type === 'sales') {
-            $query = Sale::with('saleItems.item', 'user');
-            if ($request->filled('start_date')) $query->whereDate('sold_at', '>=', $request->start_date);
-            if ($request->filled('end_date')) $query->whereDate('sold_at', '<=', $request->end_date);
+            $query = Sale::with('saleItems.item', 'user')
+                ->whereBetween('sold_at', [$startDate, $endDate]);
             
             $sales = $query->latest('sold_at')->get();
             $data = [
                 'title' => 'POS Sales Report',
                 'sales' => $sales,
-                'totalSales' => $sales->sum('total')
+                'totalSales' => $sales->sum('total'),
+                'startDate' => $startDate,
+                'endDate' => $endDate
             ];
             $viewName = 'reports.pdf.sales';
             $fileName = 'sales_report_' . now()->format('YmdHis') . '.pdf';
         }
         elseif ($type === 'inventory') {
-            $startDate = $request->filled('start_date') 
-                ? Carbon::parse($request->start_date)->startOfDay() 
-                : Carbon::now()->startOfMonth();
-                
-            $endDate = $request->filled('end_date') 
-                ? Carbon::parse($request->end_date)->endOfDay() 
-                : Carbon::now()->endOfDay();
-
             $items = Item::with(['category', 'transactions', 'saleItem.sale'])->get();
             $inventory = [];
 
@@ -325,7 +342,66 @@ class ReportController extends Controller
             ];
             $viewName = 'reports.pdf.inventory';
             $fileName = 'inventory_report_' . now()->format('YmdHis') . '.pdf';
-        } else {
+        }
+        elseif ($type === 'summary') {
+            $payments = Payment::whereBetween('payment_date', [$startDate, $endDate])->get();
+
+            $totalPrincipal = $payments->sum('principal_paid');
+            $totalInterest = $payments->sum('interest_paid');
+            $totalPenalty = $payments->sum('penalty_paid');
+            $totalServiceCharge = $payments->sum('service_charge');
+            $netCollection = $payments->sum('amount_paid');
+
+            $summaryData = [
+                'total_principal' => $totalPrincipal,
+                'total_interest' => $totalInterest,
+                'total_penalty' => $totalPenalty,
+                'total_service_charge' => $totalServiceCharge,
+                'net_collection' => $netCollection,
+            ];
+
+            $transactionTypes = [
+                'Redemption Payments' => [
+                    'count' => $payments->where('payment_type', 'redemption')->count(),
+                    'amount' => $totalPrincipal,
+                ],
+                'Interest Payments' => [
+                    'count' => $payments->where('payment_type', 'interest')->count(),
+                    'amount' => $totalInterest,
+                ],
+                'Penalties Collected' => [
+                    'count' => $payments->where('penalty_paid', '>', 0)->count(),
+                    'amount' => $totalPenalty,
+                ],
+                'Service Charges' => [
+                    'count' => $payments->where('service_charge', '>', 0)->count(),
+                    'amount' => $totalServiceCharge,
+                ]
+            ];
+
+            $dateBreakdown = $payments->groupBy(function($item) {
+                return $item->payment_date->format('M d');
+            })->map(function($dayPayments) {
+                return [
+                    'principal' => $dayPayments->sum('principal_paid'),
+                    'interest' => $dayPayments->sum('interest_paid'),
+                    'deductions' => $dayPayments->sum('service_charge'),
+                    'total' => $dayPayments->sum('amount_paid')
+                ];
+            });
+
+            $data = [
+                'title' => 'Collection Summary Report',
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'summaryData' => $summaryData,
+                'transactionTypes' => $transactionTypes,
+                'dateBreakdown' => $dateBreakdown
+            ];
+            $viewName = 'reports.pdf.summary';
+            $fileName = 'summary_report_' . now()->format('YmdHis') . '.pdf';
+        }
+        else {
             abort(404);
         }
 

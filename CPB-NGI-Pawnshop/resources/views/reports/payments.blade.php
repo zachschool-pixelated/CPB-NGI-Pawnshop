@@ -22,11 +22,11 @@
                     <form method="GET" action="{{ route('reports.payments') }}" class="flex flex-wrap gap-4 items-end">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date</label>
-                            <input type="date" name="start_date" value="{{ request('start_date') }}" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                            <input type="date" name="start_date" value="{{ request('start_date', $startDate->format('Y-m-d')) }}" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date</label>
-                            <input type="date" name="end_date" value="{{ request('end_date') }}" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
+                            <input type="date" name="end_date" value="{{ request('end_date', $endDate->format('Y-m-d')) }}" class="border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Type</label>

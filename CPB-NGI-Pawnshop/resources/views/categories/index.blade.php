@@ -145,14 +145,14 @@
 
                     // Set grid button active
                     btnGrid.className = 'p-2 rounded-r-md border border-blue-500 bg-blue-500 text-white dark:border-blue-600 dark:bg-blue-600 transition';
-                    btnList.className = 'p-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-750 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition';
+                    btnList.className = 'p-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition';
                 } else {
                     containerList.classList.remove('hidden');
                     containerGrid.classList.add('hidden');
 
                     // Set list button active
                     btnList.className = 'p-2 rounded-l-md border border-blue-500 bg-blue-500 text-white dark:border-blue-600 dark:bg-blue-600 transition';
-                    btnGrid.className = 'p-2 rounded-r-md border-t border-b border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-750 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition';
+                    btnGrid.className = 'p-2 rounded-r-md border-t border-b border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition';
                 }
             }
 

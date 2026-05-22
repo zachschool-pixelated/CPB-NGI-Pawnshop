@@ -12,6 +12,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\PawnWizardController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -53,6 +54,17 @@ Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::post('/approvals/{approval}/approve', [ApprovalController::class, 'approve'])->name('approvals.approve');
     Route::post('/approvals/{approval}/reject', [ApprovalController::class, 'reject'])->name('approvals.reject');
     Route::resource('approvals', ApprovalController::class);
+
+    // Report Routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/summary', [ReportController::class, 'summaryReport'])->name('summary');
+        Route::get('/transactions', [ReportController::class, 'transactionsReport'])->name('transactions');
+        Route::get('/payments', [ReportController::class, 'paymentsReport'])->name('payments');
+        Route::get('/sales', [ReportController::class, 'salesReport'])->name('sales');
+        Route::get('/inventory', [ReportController::class, 'inventoryReport'])->name('inventory');
+        Route::get('/export-pdf/{type}', [ReportController::class, 'exportPdf'])->name('export.pdf');
+    });
 });
 
 // Admin, Manager & Teller routes (Front Desk Operations)

@@ -112,4 +112,24 @@ class Item extends Model
         }
         return null;
     }
+
+    /**
+     * Get the sample image URL based on the category name
+     */
+    public function getSampleImageAttribute()
+    {
+        $categoryName = strtolower($this->category->name ?? '');
+
+        if (str_contains($categoryName, 'gold')) {
+            return asset('images/categories/gold_jewelry.png');
+        } elseif (str_contains($categoryName, 'silver')) {
+            return asset('images/categories/silver_jewelry.png');
+        } elseif (str_contains($categoryName, 'watch')) {
+            return asset('images/categories/watches.png');
+        } elseif (str_contains($categoryName, 'electronics') || str_contains($categoryName, 'phone') || str_contains($categoryName, 'laptop')) {
+            return asset('images/categories/electronics.png');
+        }
+
+        return asset('images/categories/generic.png');
+    }
 }

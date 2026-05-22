@@ -72,6 +72,31 @@
                 </div>
             @endif
 
+            <!-- Reports (Admin & Manager Only) -->
+            @if(auth()->user()->isAdmin() || auth()->user()->isManager())
+                <div x-data="{ open: {{ request()->routeIs('reports.*') ? 'true' : 'false' }} }" class="space-y-1 mt-2">
+                    <button @click="open = !open" type="button" class="flex items-center w-full justify-between px-4 py-3 text-sm font-medium border-l-4 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition duration-150 ease-in-out {{ request()->routeIs('reports.*') ? 'bg-gray-50 dark:bg-gray-800' : '' }}">
+                        <div class="flex items-center">
+                            <svg class="mr-3 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Reports
+                        </div>
+                        <svg :class="{'rotate-180': open}" class="h-4 w-4 transform transition-transform duration-200 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div x-show="open" x-transition class="pl-11 pr-4 py-1 space-y-1">
+                        <a href="{{ route('reports.index') }}" class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.index') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">Reports Dashboard</a>
+                        <a href="{{ route('reports.summary') }}" class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.summary') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">Collection Summary</a>
+                        <a href="{{ route('reports.transactions') }}" class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.transactions') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">Daily Transactions</a>
+                        <a href="{{ route('reports.payments') }}" class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.payments') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">Payments Report</a>
+                        <a href="{{ route('reports.sales') }}" class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.sales') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">POS Sales</a>
+                        <a href="{{ route('reports.inventory') }}" class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('reports.inventory') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">Pawned Items Inventory</a>
+                    </div>
+                </div>
+            @endif
+
             <!-- Admin & Management -->
             @if(auth()->user()->isAdmin() || auth()->user()->isManager())
                 <div x-data="{ open: {{ request()->routeIs('approvals.*', 'users.*', 'audit-logs.*') ? 'true' : 'false' }} }" class="space-y-1 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
