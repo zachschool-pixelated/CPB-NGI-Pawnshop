@@ -72,6 +72,14 @@ Route::middleware(['auth', 'role:manager,teller'])->group(function () {
     // Pawn Wizard Routes
     Route::get('/pawn-wizard', [PawnWizardController::class, 'create'])->name('pawn.wizard');
     Route::post('/pawn-wizard', [PawnWizardController::class, 'store'])->name('pawn.wizard.store');
+    Route::get('/pawn-wizard/receipt/{transaction}', [PawnWizardController::class, 'receipt'])->name('pawn.receipt');
+    
+    // API Routes for cascading dropdowns and autocomplete
+    Route::get('/api/provinces/{regionId}', [\App\Http\Controllers\LocationController::class, 'provinces']);
+    Route::get('/api/cities/{provinceId}', [\App\Http\Controllers\LocationController::class, 'cities']);
+    Route::get('/api/barangays/{cityId}', [\App\Http\Controllers\LocationController::class, 'barangays']);
+    Route::get('/api/items/names/{categoryId}', [\App\Http\Controllers\ItemController::class, 'getNamesByCategory']);
+    Route::get('/api/customers/search', [\App\Http\Controllers\PawnWizardController::class, 'searchCustomers']);
     
     // Custom Transaction Routes
     Route::post('/transactions/{transaction}/request-void', [TransactionController::class, 'requestVoid'])->name('transactions.request-void');

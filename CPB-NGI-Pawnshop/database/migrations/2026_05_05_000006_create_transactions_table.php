@@ -23,7 +23,7 @@ return new class extends Migration
             $table->dateTime('transaction_date');
             $table->dateTime('maturity_date');
             $table->dateTime('redemption_date')->nullable();
-            $table->enum('status', ['active', 'renewed', 'redeemed', 'forfeited'])->default('active');
+            $table->enum('status', ['active', 'renewed', 'redeemed', 'forfeited', 'voided', 'sold'])->default('active');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

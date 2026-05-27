@@ -18,14 +18,25 @@ class ExpiredTransactionSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
+        $region = \App\Models\Region::firstOrCreate(['code' => 'R1', 'name' => 'Region I']);
+        $province = \App\Models\Province::firstOrCreate(['region_id' => $region->id, 'code' => 'P1', 'name' => 'Province 1']);
+        $city = \App\Models\City::firstOrCreate(['province_id' => $province->id, 'code' => 'C1', 'name' => 'City 1']);
+        $barangay = \App\Models\Barangay::firstOrCreate(['city_id' => $city->id, 'code' => 'B1', 'name' => 'Barangay 1']);
+
         $customer = \App\Models\Customer::first() ?? \App\Models\Customer::create([
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john@example.com',
-            'phone' => '09123456789',
-            'address' => '123 Fake St.',
+            'phone_number' => '09123456789',
+            'address_line' => '123 Fake St.',
+            'id_type' => 'national_id',
+            'id_number' => 'NID-EXP-1111',
+            'region_id' => $region->id,
+            'province_id' => $province->id,
+            'city_id' => $city->id,
+            'barangay_id' => $barangay->id,
         ]);
-
+ 
         $category = \App\Models\Category::where('name', 'Gold Jewelry')->first()
             ?? \App\Models\Category::where('name', 'Jewelry')->first()
             ?? \App\Models\Category::first()
@@ -33,7 +44,7 @@ class ExpiredTransactionSeeder extends Seeder
                 'name' => 'Gold Jewelry',
                 'description' => 'Gold rings, necklaces, bracelets, earrings',
             ]);
-
+ 
         $itemsData = [
             ['name' => 'Silver Ring', 'value' => 1500.00, 'loan' => 1000.00],
             ['name' => 'Rolex Watch (Replica)', 'value' => 8000.00, 'loan' => 5000.00],

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->text('notes')->nullable();
             $table->boolean('is_available')->default(true);
+            $table->string('item_status')->default('stored');
+            $table->decimal('selling_price', 12, 2)->nullable();
             $table->timestamps();
         });
     }

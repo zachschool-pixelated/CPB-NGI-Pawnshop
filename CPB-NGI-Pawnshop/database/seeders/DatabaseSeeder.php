@@ -18,37 +18,37 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin@pawnshop.com'],
             [
-                'name'     => 'Admin',
+                'name'     => 'Admin User',
                 'role'     => 'admin',
                 'password' => Hash::make('password'),
             ]
         );
-
+ 
         // Create default teller
         User::firstOrCreate(
             ['email' => 'teller@pawnshop.com'],
             [
-                'name'     => 'Teller',
+                'name'     => 'Teller Staff',
                 'role'     => 'teller',
                 'password' => Hash::make('password'),
             ]
         );
-
+ 
         // Create default manager
         User::firstOrCreate(
             ['email' => 'manager@pawnshop.com'],
             [
-                'name'     => 'Manager',
+                'name'     => 'Manager Staff',
                 'role'     => 'manager',
                 'password' => Hash::make('password'),
             ]
         );
-
+ 
         // Create default cashier
         User::firstOrCreate(
             ['email' => 'cashier@pawnshop.com'],
             [
-                'name'     => 'Cashier',
+                'name'     => 'Cashier Staff',
                 'role'     => 'cashier',
                 'password' => Hash::make('password'),
             ]

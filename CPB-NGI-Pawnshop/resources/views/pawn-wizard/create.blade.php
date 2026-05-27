@@ -77,19 +77,25 @@
 
                             <!-- EXISTING CUSTOMER SEARCH -->
                             <div id="existing-customer-section" class="space-y-4">
-                                <div>
+                                @php
+                                    $selectedCustomer = null;
+                                    if (old('customer_id')) {
+                                        $selectedCustomer = \App\Models\Customer::find(old('customer_id'));
+                                    }
+                                @endphp
+                                <div id="search-input-wrapper" class="{{ $selectedCustomer ? 'hidden' : '' }}">
                                     <x-input-label for="customer_search" :value="__('Search Customer (Name or Phone)')" />
                                     <div class="relative">
                                         <x-text-input id="customer_search" class="block mt-1 w-full" type="text" placeholder="Type to search..." autocomplete="off" />
                                         <div id="search-results" class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg hidden max-h-60 overflow-y-auto"></div>
                                     </div>
                                 </div>
-                                <div id="selected-customer-card" class="hidden p-4 border border-green-300 bg-green-50 dark:bg-green-900/30 dark:border-green-800 rounded-lg">
+                                <div id="selected-customer-card" class="{{ $selectedCustomer ? '' : 'hidden' }} p-4 border border-green-300 bg-green-50 dark:bg-green-900/30 dark:border-green-800 rounded-lg">
                                     <div class="flex justify-between items-start">
                                         <div>
-                                            <h4 class="font-bold text-green-800 dark:text-green-300" id="sel-cust-name"></h4>
-                                            <p class="text-sm text-green-700 dark:text-green-400" id="sel-cust-phone"></p>
-                                            <p class="text-sm text-green-700 dark:text-green-400" id="sel-cust-address"></p>
+                                            <h4 class="font-bold text-green-800 dark:text-green-300" id="sel-cust-name">{{ $selectedCustomer ? $selectedCustomer->full_name : '' }}</h4>
+                                            <p class="text-sm text-green-700 dark:text-green-400" id="sel-cust-phone">{{ $selectedCustomer ? $selectedCustomer->phone_number : '' }}</p>
+                                            <p class="text-sm text-green-700 dark:text-green-400" id="sel-cust-address">{{ $selectedCustomer ? $selectedCustomer->full_address : '' }}</p>
                                         </div>
                                         <button type="button" onclick="clearCustomerSelection()" class="text-red-500 hover:text-red-700 text-sm font-semibold">Change</button>
                                     </div>
@@ -399,8 +405,30 @@
         }
 
         document.getElementById('btn-next').addEventListener('click', () => {
-            // Simple front-end required field check could go here
-            if (currentStep < totalSteps) {
+            // Validate the current step's fields before moving forward
+            const currentStepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+            
+            // Special validation for existing customer select
+            if (currentStep === 1) {
+                const type = document.querySelector('input[name="customer_type"]:checked').value;
+                if (type === 'existing' && !document.getElementById('customer_id').value) {
+                    alert('Please search and select an existing customer.');
+                    return;
+                }
+            }
+
+            // Check standard HTML5 validation for inputs/selects in the current step
+            const inputs = currentStepEl.querySelectorAll('input, select, textarea');
+            let allValid = true;
+            for (const input of inputs) {
+                if (!input.checkValidity()) {
+                    input.reportValidity();
+                    allValid = false;
+                    break;
+                }
+            }
+
+            if (allValid && currentStep < totalSteps) {
                 currentStep++;
                 updateUI();
             }
@@ -490,14 +518,14 @@
             
             searchInput.value = '';
             searchResults.classList.add('hidden');
-            searchInput.parentElement.classList.add('hidden');
+            document.getElementById('search-input-wrapper').classList.add('hidden');
             document.getElementById('selected-customer-card').classList.remove('hidden');
         }
 
         function clearCustomerSelection() {
             document.getElementById('customer_id').value = '';
             document.getElementById('selected-customer-card').classList.add('hidden');
-            searchInput.parentElement.classList.remove('hidden');
+            document.getElementById('search-input-wrapper').classList.remove('hidden');
         }
 
         // -- Computation Logic --
@@ -632,11 +660,56 @@
             // PSGC Cascading Dropdowns for New Customer
             const r=document.getElementById('region_id'), p=document.getElementById('province_id'), c=document.getElementById('city_id'), b=document.getElementById('barangay_id');
             function reset(s,ph){s.innerHTML=`<option value="">${ph}</option>`;s.disabled=true;}
-            function fill(s,data,ph){s.innerHTML=`<option value="">${ph}</option>`;data.forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.name;s.appendChild(o);});s.disabled=false;}
+            function fill(s,data,ph,selectedId){
+                s.innerHTML=`<option value="">${ph}</option>`;
+                data.forEach(i=>{
+                    const o=document.createElement('option');
+                    o.value=i.id;
+                    o.textContent=i.name;
+                    if (selectedId && String(i.id) === String(selectedId)) {
+                        o.selected = true;
+                    }
+                    s.appendChild(o);
+                });
+                s.disabled=false;
+            }
             if(r){
                 r.addEventListener('change',function(){reset(p,'Select Province');reset(c,'Select City');reset(b,'Select Barangay');if(this.value)fetch(`/api/provinces/${this.value}`).then(r=>r.json()).then(d=>fill(p,d,'Select Province'));});
                 p.addEventListener('change',function(){reset(c,'Select City');reset(b,'Select Barangay');if(this.value)fetch(`/api/cities/${this.value}`).then(r=>r.json()).then(d=>fill(c,d,'Select City'));});
                 c.addEventListener('change',function(){reset(b,'Select Barangay');if(this.value)fetch(`/api/barangays/${this.value}`).then(r=>r.json()).then(d=>fill(b,d,'Select Barangay'));});
+            }
+
+            // Restore dynamic dropdowns if old input exists
+            const oldRegion = "{{ old('region_id') }}";
+            const oldProvince = "{{ old('province_id') }}";
+            const oldCity = "{{ old('city_id') }}";
+            const oldBarangay = "{{ old('barangay_id') }}";
+
+            if (oldRegion && r) {
+                fetch(`/api/provinces/${oldRegion}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        fill(p, data, 'Select Province', oldProvince);
+                        if (oldProvince) {
+                            return fetch(`/api/cities/${oldProvince}`);
+                        }
+                    })
+                    .then(res => res ? res.json() : null)
+                    .then(data => {
+                        if (data) {
+                            fill(c, data, 'Select City', oldCity);
+                            if (oldCity) {
+                                return fetch(`/api/barangays/${oldCity}`);
+                            }
+                        }
+                    })
+                    .then(res => res ? res.json() : null)
+                    .then(data => {
+                        if (data) {
+                            fill(b, data, 'Select Barangay', oldBarangay);
+                        }
+                    })
+                    .catch(err => console.error('Failed to restore location dropdowns:', err));
             }
         });
     </script>
